@@ -21,40 +21,29 @@ var pointMaterial = new THREE.PointCloudMaterial({
     sizeAttenuation: false,
 });
 
+var mouseDown = false;
 var currentPoint = [0,0,0];
 var lines = [];
 var point = undefined;
 
 document.addEventListener("keydown", function(e){
 	var keyCode = e.keyCode;
-	var originalPoint = currentPoint.slice();
 	switch(keyCode){
 		case 37: //left
-			currentPoint[0] -= 1;
+			rotateImage(0, -0.1);
 			break;
 		case 38: //up
-			currentPoint[1] += 1;
+			rotateImage(-0.1, 0);
 			break;
 		case 39: //right
-			currentPoint[0] += 1;
+			rotateImage(0, 0.1);
 			break;
 		case 40: //down
-			currentPoint[1] -= 1;
+			rotateImage(0.1, 0);
 			break;
 		default:
 			rotateImage();
 	}
-	var lineGeometry = new THREE.Geometry();
-	lineGeometry.vertices.push(new THREE.Vector3(originalPoint[0], originalPoint[1], originalPoint[2]));
-	lineGeometry.vertices.push(new THREE.Vector3(currentPoint[0], currentPoint[1], currentPoint[2]));
-	var line = new THREE.Line(lineGeometry, lineMaterial);
-
-	var pointGeometry = new THREE.Geometry();
-	pointGeometry.vertices.push(new THREE.Vector3(currentPoint[0], currentPoint[1], currentPoint[2]));
-	point.geometry = pointGeometry;
-
-	scene.add(line);
-	lines.push(line);
 	renderer.render(scene, camera);
 });
 
@@ -66,19 +55,35 @@ document.addEventListener("mousemove", function(e){
 	threeX *= MOVEMENT_SCALE;
 	threeY *= MOVEMENT_SCALE;
 
-	pointGeometry.vertices.push(new THREE.Vector3(threeX, threeY, 0));
+	var newPosition = new THREE.Vector3(threeX, threeY, 0);
+	pointGeometry.vertices.push(newPosition);
+
+	if (mouseDown){
+		var lineGeometry = new THREE.Geometry();
+		lineGeometry.vertices.push(point.geometry.vertices[0]);
+		lineGeometry.vertices.push(newPosition);
+		var line = new THREE.Line(lineGeometry, lineMaterial);
+		scene.add(line);
+		lines.push(line);
+	}
+
 	point.geometry = pointGeometry;
 	renderer.render(scene, camera);
 });
 
-function rotateImage(){
+document.addEventListener("mousedown", function(){
+	mouseDown = true;
+});
+
+document.addEventListener("mouseup", function(){
+	mouseDown = false;
+});
+
+function rotateImage(x, y){
 	lines.map(function(d){
-		d.rotation.x += 0.1;
-		d.rotation.y += 0.1;
-		// d.rotation.z += 0.1;
+		d.rotation.x += x;
+		d.rotation.y += y;
 	});
-	// point.rotation.x += 0.1;
-	// point.rotation.y += 0.1;
 }
 
 var pointGeometry = new THREE.Geometry();
