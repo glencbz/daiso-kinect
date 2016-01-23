@@ -12,7 +12,8 @@ var origin = [window.innerWidth/2, window.innerHeight/2];
 var scene = new THREE.Scene();
 
 var lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x00ff00
+    color: 0xffffff,
+    linewidth: 2,
 });
 
 var pointMaterial = new THREE.PointCloudMaterial({
@@ -41,8 +42,6 @@ document.addEventListener("keydown", function(e){
 		case 40: //down
 			rotateImage(0.1, 0);
 			break;
-		default:
-			rotateImage();
 	}
 	renderer.render(scene, camera);
 });
@@ -85,6 +84,42 @@ function rotateImage(x, y){
 		d.rotation.y += y;
 	});
 }
+
+var xAxisMaterial = new THREE.LineBasicMaterial({
+    color: 0xff00ff,
+    linewidth: 2,
+});
+
+var yAxisMaterial = new THREE.LineBasicMaterial({
+    color: 0x00ffff,
+    linewidth: 2,
+});
+
+var zAxisMaterial = new THREE.LineBasicMaterial({
+    color: 0xffff00,
+    linewidth: 2,
+});
+
+var xAxisGeometry = new THREE.Geometry();
+xAxisGeometry.vertices.push(new THREE.Vector3(0,0,0));
+xAxisGeometry.vertices.push(new THREE.Vector3(10,0,0));
+var xAxisLine = new THREE.Line(xAxisGeometry, xAxisMaterial);
+scene.add(xAxisLine);
+lines.push(xAxisLine);
+
+var yAxisGeometry = new THREE.Geometry();
+yAxisGeometry.vertices.push(new THREE.Vector3(0,0,0));
+yAxisGeometry.vertices.push(new THREE.Vector3(0,10,0));
+var yAxisLine = new THREE.Line(yAxisGeometry, yAxisMaterial);
+scene.add(yAxisLine);
+lines.push(yAxisLine);
+
+var zAxisGeometry = new THREE.Geometry();
+zAxisGeometry.vertices.push(new THREE.Vector3(0,0,0));
+zAxisGeometry.vertices.push(new THREE.Vector3(0,0,10));
+var zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial);
+scene.add(zAxisLine);
+lines.push(zAxisLine);
 
 var pointGeometry = new THREE.Geometry();
 pointGeometry.vertices.push(new THREE.Vector3(currentPoint[0], currentPoint[1], currentPoint[2]));
