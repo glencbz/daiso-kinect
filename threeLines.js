@@ -1,6 +1,7 @@
 const MOVEMENT_SCALE = 0.1;
 
-var controls, renderer, camera, scene, lines, pointer, mouseDown, currentPoint, origin, framerate, frametime, lineMaterial, pointer
+var controls, renderer, camera, scene, lines, pointer, mouseDown, currentPoint, origin, framerate, frametime, lineMaterial, pointer, glRenderer
+var pointOffMaterial, pointOnMaterial
 var coordinatesUrl = 'http://localhost:8080/'
 var timeStepSinceLast = 1
 var drawing = true;
@@ -29,6 +30,8 @@ $(function(){
       drawing = !drawing
       if (drawing)
         getCurrentCoordinate()
+    } else if (e.keyCode == 86) {
+      toggleVR()
     }
   })
 })
@@ -37,9 +40,10 @@ function init () {
   framerate = 10
   frametime = 1000/framerate
 
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  glRenderer = new THREE.WebGLRenderer();
+  glRenderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(glRenderer.domElement);
+  renderer = glRenderer
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
   camera.position.set(0, 0, 100);
@@ -57,13 +61,13 @@ function init () {
       linewidth: 1000,
   });
 
-  var pointOffMaterial = new THREE.PointCloudMaterial({
+  pointOffMaterial = new THREE.PointCloudMaterial({
       color: 0xff0000,
       size: 5,
       sizeAttenuation: false,
   });
 
-  var pointOnMaterial = new THREE.PointCloudMaterial({
+  pointOnMaterial = new THREE.PointCloudMaterial({
       color: 0x00ff00,
       size: 5,
       sizeAttenuation: false,
@@ -114,7 +118,7 @@ function init () {
   pointer = [0,0,0]
   var pointGeometry = new THREE.Geometry()
   pointGeometry.vertices.push(new THREE.Vector3(0,0,0))
-  pointer = new THREE.Points(pointGeometry, pointMaterial)
+  pointer = new THREE.Points(pointGeometry, pointOnMaterial)
   scene.add(pointer)
 }
 
@@ -139,7 +143,7 @@ function getCurrentCoordinate () {
 
     if (currentPoint) {
       var velocity = currentPoint.distanceTo(point) / (timeStepSinceLast / framerate)
-      if (velocity > 20) {
+      if (velocity > 40) {
         timeStepSinceLast += 1
       } else {
         var lineGeometry = new THREE.Geometry()
@@ -166,3 +170,26 @@ function getCurrentCoordinate () {
   })
 }
 
+function toggleVR () {
+  var screen = window.screen
+  glRenderer.setSize(screen.width, screen.height)
+  glRenderer.setPixelRatio(window.devicePixelRatio)
+  effect = new THREE.StereoEffect(glRenderer)
+  effect.eyeSeparation = 3
+  effect.setSize(screen.width, screen.height)
+  // effect.setSize(canvas.width(), $(window).height())
+
+  // effect.setSize(screen.width, screen.height)
+  renderer = effect
+  camera.position.set(0, 0, 100)
+  var elem = glRenderer.domElement
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen()
+  } else if (elem.msRequestFullscreen) {
+    elem.msRequestFullscreen()
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen()
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen()
+  }
+}
