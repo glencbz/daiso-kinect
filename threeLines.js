@@ -1,7 +1,7 @@
 const MOVEMENT_SCALE = 0.1;
 
 var controls, renderer, camera, scene, lines, pointer, mouseDown, currentPoint, origin, framerate, frametime, lineMaterial, pointer, glRenderer
-var pointOffMaterial, pointOnMaterial
+var pointOffMaterial, pointOnMaterial, extrudeMaterial
 var coordinatesUrl = 'http://localhost:8080/'
 var timeStepSinceLast = 1
 var drawing = true;
@@ -32,6 +32,13 @@ $(function(){
         getCurrentCoordinate()
     } else if (e.keyCode == 86) {
       toggleVR()
+    } else if (e.keyCode == 69){
+      var extrudeGeometry = new THREE.ExtrudeGeometry(lines, {
+        amount: 10
+      });
+      var extruded = new Mesh(extrudeGeometry, extrudeMaterial)
+      scene.add(extruded)
+      render()
     }
   })
 })
@@ -114,6 +121,8 @@ function init () {
   var zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial);
   scene.add(zAxisLine);
   // lines.push(zAxisLine);
+
+  var extrudeMaterial = new THREE.MeshBasicMaterial();
 
   pointer = [0,0,0]
   var pointGeometry = new THREE.Geometry()
